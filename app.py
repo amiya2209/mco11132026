@@ -31,7 +31,6 @@ def create_app(database_path=None):
 
         message = message.strip()
         with closing(sqlite3.connect(database)) as connection:
-            # The ? keeps user input separate from the SQL command.
             connection.execute("UPDATE messages SET message = ? WHERE id = 1", (message,))
             connection.commit()
         return jsonify(message=message)
@@ -40,4 +39,4 @@ def create_app(database_path=None):
 
 
 if __name__ == "__main__":
-        create_app().run(host=os.environ.get("HOST", "127.0.0.1"), port=5000)
+    create_app().run(host=os.environ.get("HOST", "127.0.0.1"), port=5000)
