@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World demo</title>
+  <style>
+    body { font: 18px system-ui; max-width: 500px; margin: 50px auto; padding: 20px; }
+    input { box-sizing: border-box; width: 100%; padding: 10px; margin: 10px 0; font: inherit; }
+    button { padding: 10px; font: inherit; }
+    #saved-message { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <p>SQLite: <strong id="saved-message">Loading...</strong></p>
+
+  <form id="message-form">
+    <label for="message">write a message</label>
+    <input id="message" maxlength="200" required disabled>
+    <button id="save-button" type="submit" disabled>Save</button>
+  </form>
+  <p id="status" role="status"></p>
+
+  <script>
+    const input = document.querySelector('#message');
+    const savedMessage = document.querySelector('#saved-message');
+    const status = document.querySelector('#status');
+    const saveButton = document.querySelector('#save-button');
+
+    // GET loads the message; PUT saves it. Both return the saved message.
+    async function callApi(options = {}) {
+      saveButton.disabled = true;
+      try {
+        const response = await fetch('/api/message', { cache: 'no-store', ...options });
+        if (!response.ok) throw new Error('Could not load or save. Use 1 to 200 characters and try again.');
+        const data = await response.json();
+        savedMessage.textContent = data.message;
+        input.value = data.message;
+        input.disabled = false;
+        status.textContent = options.method ? 'Saved! refresh page' : '';
+      } catch (error) {
+        status.textContent = error.message + ' If the app is starting, wait and refresh.';
+      } finally {
+        saveButton.disabled = input.disabled;
+      }
+    }
+
+    document.querySelector('#message-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      callApi({
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input.value })
+      });
+    });
+
+    callApi();
+  </script>
+</body>
+</html>
