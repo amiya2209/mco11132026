@@ -1,0 +1,21 @@
+name: hello-world
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Containerfile
+    volumes:
+      - message-data:/data
+
+  web:
+    image: docker.io/library/nginx:1.28-alpine
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro,Z
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro,Z
+    depends_on:
+      - api
+
+volumes:
+  message-data:
